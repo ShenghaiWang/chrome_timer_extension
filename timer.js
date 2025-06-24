@@ -32,29 +32,46 @@ if (!window.__my_timer_injected) {
       (seconds < 10 ? '0' : '') + seconds;
   }
 
-  async function updateTimerDisplay() {
-    // console.log('Content Script: updateTimerDisplay called.'); // Uncomment for debugging
-    const data = await chrome.storage.local.get(['timerInitial', 'timerStart', 'timerRunning']);
+  let timerIntervalId = null;
 
-    const timerInitial = data.timerInitial || 0;
-    const timerStart = data.timerStart || Date.now();
-    const timerRunning = data.timerRunning || false;
+  function stopTimerLoop() {
+    if (timerIntervalId) {
+      clearInterval(timerIntervalId);
+      timerIntervalId = null;
+    }
+    timerDiv.style.display = 'none';
+  }
 
-    if (!timerRunning) {
-      timerDiv.style.display = 'none';
-      return;
+  function startTimerLoop(initialMs, startMs) {
+    // Clear any existing loop to ensure we don't have duplicates
+    if (timerIntervalId) {
+      clearInterval(timerIntervalId);
     }
     timerDiv.style.display = 'block';
 
-    const elapsed = Date.now() - timerStart;
-    const remaining = timerInitial - elapsed;
-    timerDiv.textContent = formatTime(remaining);
-    timerDiv.style.background = remaining < 0 ? 'rgba(200,0,0,0.8)' : 'rgba(0,0,0,0.8)';
-    // console.log('Content Script: updateTimerDisplay finished.'); // Uncomment for debugging
+    const update = () => {
+      const elapsed = Date.now() - startMs;
+      const remaining = initialMs - elapsed;
+      timerDiv.textContent = formatTime(remaining);
+      timerDiv.style.background = remaining < 0 ? 'rgba(200,0,0,0.8)' : 'rgba(0,0,0,0.8)';
+    };
+
+    update(); // Update immediately without waiting for the first second
+    timerIntervalId = setInterval(update, 1000);
   }
 
-  setInterval(updateTimerDisplay, 1000);
-  updateTimerDisplay();
+  // This function is called when the script is first injected or when the background
+  // script signals an update. It fetches the latest state and starts or stops the
+  // timer loop accordingly.
+  async function syncTimerState() {
+    const data = await chrome.storage.local.get(['timerInitial', 'timerStart', 'timerRunning']);
+    if (data.timerRunning) {
+      startTimerLoop(data.timerInitial, data.timerStart);
+    } else {
+      stopTimerLoop();
+    }
+  }
+  syncTimerState(); // Sync state when the content script loads
 
   // --- Drag functionality variables ---
   let isDragging = false;
@@ -148,8 +165,9 @@ if (!window.__my_timer_injected) {
 
   // Listen for timer updates from background
   chrome.runtime.onMessage.addListener((msg) => {
+    // The background script will tell us when the timer state has changed.
     if (msg.type === 'TIMER_UPDATED') {
-      updateTimerDisplay(); // This will now call the async version
+      syncTimerState();
     }
   });
 }
