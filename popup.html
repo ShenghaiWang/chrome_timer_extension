@@ -1,0 +1,108 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Set Timer</title>
+    <style>
+      body {
+        min-width: 250px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        padding: 10px 20px;
+        text-align: center;
+      }
+      h2 {
+        color: #4a4a4a;
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-weight: 500;
+      }
+      #timerForm {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        width: 100%;
+      }
+      .input-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+      }
+      label {
+        font-size: 14px;
+        color: #555;
+      }
+      input[type="number"] {
+        width: 60px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        text-align: center;
+        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      }
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      }
+      /* Hide number input spinners for a cleaner look */
+      input[type=number]::-webkit-inner-spin-button,
+      input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type=number] {
+        -moz-appearance: textfield;
+      }
+      button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+      }
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
+      button[type="submit"]:active {
+        transform: scale(0.98);
+      }
+      .usage-info {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #ddd;
+        font-size: 13px;
+        color: #555;
+        line-height: 1.5;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Set Timer</h2>
+    <form id="timerForm">
+      <div class="input-group">
+        <label for="minutes">Minutes</label>
+        <input type="number" id="minutes" min="0" value="5">
+      </div>
+      <div class="input-group">
+        <label for="seconds">Seconds</label>
+        <input type="number" id="seconds" min="0" max="59" value="0">
+      </div>
+      <button type="submit">Start</button>
+    </form>
+    <div class="usage-info">
+      <strong>Timer Controls:</strong><br>
+      Drag to move, single-click to restart, and double-click to stop.
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
